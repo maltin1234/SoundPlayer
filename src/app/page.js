@@ -1,11 +1,13 @@
 "use client"
 import Image from "next/image";
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect,useState } from 'react';
 import disableScroll from 'disable-scroll';
 import { middleware } from './middleware';
 
 
 export default function Home() {
+
+  const [isClicked, setIsClicked] = useState(false)
   const audioRef = useRef(null);
   useEffect(() => {
     disableScroll.on();
@@ -17,6 +19,7 @@ export default function Home() {
   const playAudio = () => {
     if (audioRef.current) {
       audioRef.current.play();
+      setIsClicked(isClicked => !isClicked)
     }
   };
   const handleTouchMove = (e) => {
@@ -29,7 +32,8 @@ export default function Home() {
         <p className="text-5xl md:text-7xl mb-4 py-4 px-6">In need of<br />support?</p>
         <p className="text-lg md:text-2xl mb-4 py-4 px-6">Press the button <br /> and the Startbox will <br /> come to assist you</p>
         <button
-          className="bg-neutral-800 hover:bg-slate-950 text-white font-bold py-4 px-6 rounded-lg btn"
+         className={`text-white font-bold py-4 px-6 rounded-lg btn ${isClicked ? 'bg-neutral-800' : 'bg-slate-950'}`}
+         
           onClick={playAudio}
         >
           <p className="text-4xl md:text-7xl mb-0">Press here</p>
