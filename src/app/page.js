@@ -2,24 +2,41 @@
 import Image from "next/image";
 import React, { useRef, useEffect,useState } from 'react';
 import disableScroll from 'disable-scroll';
-import { middleware } from './middleware';
+
+
 
 
 export default function Home() {
 
   const [isClicked, setIsClicked] = useState(false)
+  const [audioSrc, setAudioSrc] = useState("");
   const audioRef = useRef(null);
   useEffect(() => {
+    
+    const entranceNumber = Math.floor(Math.random() * 2) + 1;
+    sessionStorage.setItem('entrance', entranceNumber.toString());
     disableScroll.on();
     return () => {
       disableScroll.off();
     };
   }, []);
 
+ 
+
   const playAudio = () => {
     if (audioRef.current) {
-      audioRef.current.play();
+      const entranceNumber = parseInt(sessionStorage.getItem('entrance'));
+      console.log(entranceNumber)
+      // Set audio source based on the entrance number
+      const newAudioSrc = entranceNumber === 1 ? "https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3" : "";
+       console.log(newAudioSrc)
+       // Update audio source
+       setAudioSrc(newAudioSrc);
+       // Play audio
+       
+       audioRef.current.play();
       setIsClicked(isClicked => !isClicked)
+      
     }
   };
   const handleTouchMove = (e) => {
@@ -38,7 +55,7 @@ export default function Home() {
         >
           <p className="text-4xl md:text-7xl mb-0">Press here</p>
         </button>
-        <audio ref={audioRef} src="https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3" />
+        <audio ref={audioRef} src={audioSrc}/>
       </div>
     </div>
   );
