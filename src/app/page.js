@@ -28,7 +28,7 @@ export default function Home() {
       const entranceNumber = parseInt(sessionStorage.getItem('entrance'));
       console.log(entranceNumber)
       // Set audio source based on the entrance number
-      const newAudioSrc = entranceNumber === 1 ? "https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3" : "";
+      const newAudioSrc = entranceNumber === 1 ? "https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3" : "https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3";
        console.log(newAudioSrc)
        // Update audio source
        setAudioSrc(newAudioSrc);
