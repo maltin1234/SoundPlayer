@@ -1,6 +1,7 @@
+"use client"
 import React, { useRef, useEffect, useState } from 'react';
 import disableScroll from 'disable-scroll';
-import Audio from './component/Audio'; // Import the Audio component
+
 
 /**
  * Home Component
@@ -37,7 +38,7 @@ export default function Home() {
       const entranceNumber = parseInt(sessionStorage.getItem('entrance'));
       
       // Determine the audio source based on the entrance number
-      const newAudioSrc = entranceNumber === 1 ? "https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3" : "/audio.mp3";
+      const newAudioSrc = entranceNumber === 1 ? "/Ping.wav" : "/airport.mp3";
       
       // Set the audio source state and trigger audio playback
       setAudioSrc(newAudioSrc);
@@ -70,3 +71,4 @@ export default function Home() {
     </div>
   );
 }
+
