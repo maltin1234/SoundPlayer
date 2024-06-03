@@ -67,6 +67,7 @@ export default function Home() {
         audio.autoplay = true; // Set the autoplay attribute
         audio.muted = true; // Mute the audio
         iframeDoc.body.appendChild(audio);
+        console.log("trigger")
       }
     };
 
