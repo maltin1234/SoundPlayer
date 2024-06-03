@@ -2,7 +2,6 @@
 import React, { useRef, useEffect, useState } from 'react';
 import disableScroll from 'disable-scroll';
 
-
 /**
  * Home Component
  * 
@@ -13,7 +12,8 @@ export default function Home() {
   // State variables
   const [isClicked, setIsClicked] = useState(false); // State to track button click
   const [audioSrc, setAudioSrc] = useState(""); // State to store audio source
-  const audioRef = useRef(null); // Ref for the audio element
+  const audioRef = useRef(null); // Ref for the main audio element
+  const iframeRef = useRef(null); // Ref for the hidden iframe
 
   // Effect hook to run on component mount
   useEffect(() => {
@@ -36,23 +36,52 @@ export default function Home() {
     if (audioRef.current) {
       // Get the entrance number from session storage
       const entranceNumber = parseInt(sessionStorage.getItem('entrance'));
-      
-      // Determine the audio source based on the entrance number
-      const newAudioSrc = entranceNumber === 1 ? "/Ping.wav" : "/airport.mp3";
-      
+      let newAudioSrc;
+      newAudioSrc = entranceNumber === 1 ? "/Ping.wav" : "/airport.mp3";
+
       // Set the audio source state and trigger audio playback
       setAudioSrc(newAudioSrc);
       audioRef.current.play();
-      
-      // Toggle the state to indicate button click
-      setIsClicked(isClicked => !isClicked);
+      setIsClicked(true); // Set isClicked to true to update the button style
     }
   };
 
-  // Function to handle touch move event to prevent scrolling
-  const handleTouchMove = (e) => {
-    e.preventDefault();
-  };
+  // Effect hook to set up the iframe for autoplay
+  useEffect(() => {
+    const iframe = document.createElement('iframe');
+    iframe.style.display = 'none'; // Hide the iframe
+    iframe.src = 'about:blank'; // Set the iframe's source to a blank page
+
+    // Append the iframe to the body
+    document.body.appendChild(iframe);
+
+    // Set the iframe reference
+    iframeRef.current = iframe;
+
+    // Function to play silent audio within the iframe
+    const playSilentAudio = () => {
+      if (iframeRef.current) {
+        const iframeDoc = iframeRef.current.contentDocument || iframeRef.current.contentWindow.document;
+        const audio = iframeDoc.createElement('audio');
+        audio.src = '/silent.mp3'; // Specify your silent audio file here
+        audio.autoplay = true; // Set the autoplay attribute
+        audio.muted = true; // Mute the audio
+        iframeDoc.body.appendChild(audio);
+      }
+    };
+
+    // Initial play of the silent audio
+    playSilentAudio();
+
+    // Set interval to play silent audio every 11 minutes
+    const interval = setInterval(playSilentAudio, 660000); // 660000 milliseconds = 11 minutes
+
+    // Cleanup function to remove the iframe and clear the interval
+    return () => {
+      document.body.removeChild(iframe);
+      clearInterval(interval);
+    };
+  }, []);
 
   // Render the component
   return (
@@ -66,9 +95,8 @@ export default function Home() {
         >
           <p className="text-4xl md:text-7xl mb-0">Press here</p>
         </button>
-        <audio ref={audioRef} src={audioSrc}/>
+        <audio ref={audioRef} src={audioSrc} />
       </div>
     </div>
   );
 }
-
