@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import React, { useRef, useEffect, useState } from 'react';
 import disableScroll from 'disable-scroll';
 
@@ -31,34 +31,41 @@ export default function Home() {
   }, []);
 
   // Function to handle button click event
-  const playAudio = async () => {
+  const playAudio = () => {
     // Check if the audio reference exists
     if (audioRef.current) {
       // Get the entrance number from session storage
       const entranceNumber = parseInt(sessionStorage.getItem('entrance'));
+      
+      // Determine the audio source based on the entrance number
       const newAudioSrc = entranceNumber === 1 ? "/Ping.wav" : "/airport.mp3";
       
-      // Set the audio source state and log the new source
+      // Set the audio source state and trigger audio playback
       setAudioSrc(newAudioSrc);
-      console.log(`Setting audio source to: ${newAudioSrc}`);
-
-      try {
-        // Try to play the audio
-        await audioRef.current.play();
+      console.log(`Playing audio: ${newAudioSrc}`);
+      
+      // Create a new Audio object to reset playback
+      const audio = new Audio(newAudioSrc);
+      audio.play().then(() => {
         setIsClicked(true); // Set isClicked to true to update the button style
-      } catch (error) {
+        console.log('Audio playback started');
+      }).catch((error) => {
         console.error("Error playing audio:", error);
-      }
+      });
+
+      // Reset the button state to allow future clicks
+      setIsClicked(false);
     }
   };
 
   // Effect hook to set up the silent audio for autoplay
   useEffect(() => {
-    // Function to play silent audio 
     const playSilentAudio = () => {
       if (silentAudioRef.current) {
         console.log("Triggering silent audio");
-        silentAudioRef.current.play();
+        silentAudioRef.current.play().catch((error) => {
+          console.error("Silent audio play error:", error);
+        });
       }
     };
 
@@ -74,23 +81,29 @@ export default function Home() {
     };
   }, []);
 
+  // Function to handle touch move event to prevent scrolling
+  const handleTouchMove = (e) => {
+    e.preventDefault();
+  };
+
   // Render the component
   return (
-    <div className="fixed inset-0 flex justify-center items-center bg-gray-100 bg-yellow-400" style={{ touchAction: 'none', overflow: 'hidden' }}>
+    <div
+      className="fixed inset-0 flex justify-center items-center bg-gray-100 bg-yellow-400"
+      style={{ touchAction: 'none', overflow: 'hidden' }}
+      onTouchMove={handleTouchMove}
+    >
       <div className="text-center">
         <p className="text-5xl md:text-7xl mb-4 py-4 px-6">In need of<br />support?</p>
         <p className="text-lg md:text-2xl mb-4 py-4 px-6">Press the button <br /> and the Startbox will <br /> come to assist you</p>
         <button
           className={`text-white font-bold py-4 px-6 rounded-lg btn ${isClicked ? 'bg-neutral-800' : 'bg-slate-950'}`}
           onClick={playAudio}
-          disabled={isClicked} // Disable the button after it's clicked
         >
           <p className="text-4xl md:text-7xl mb-0">Press here</p>
         </button>
-        {/* Main audio element */}
         <audio ref={audioRef} src={audioSrc} preload="auto" />
-        {/* Silent audio element */}
-        <audio ref={silentAudioRef} src="/silent.mp3" autoPlay loop />
+        <audio ref={silentAudioRef} src="/audio.mp3" preload="auto" />
       </div>
     </div>
   );
