@@ -103,7 +103,7 @@ export default function Home() {
           <p className="text-4xl md:text-7xl mb-0">Press here</p>
         </button>
         <audio ref={audioRef} src={audioSrc} preload="auto" />
-        <audio ref={silentAudioRef} src="/audio.mp3" preload="auto" />
+        <audio ref={silentAudioRef} src="/silent.mp3" preload="auto" />
       </div>
     </div>
   );
