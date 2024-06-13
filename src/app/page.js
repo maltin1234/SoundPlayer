@@ -1,4 +1,3 @@
-"use client"
 import React, { useRef, useEffect, useState } from 'react';
 import disableScroll from 'disable-scroll';
 
@@ -13,7 +12,7 @@ export default function Home() {
   const [isClicked, setIsClicked] = useState(false); // State to track button click
   const [audioSrc, setAudioSrc] = useState(""); // State to store audio source
   const audioRef = useRef(null); // Ref for the main audio element
-  const iframeRef = useRef(null); // Ref for the hidden iframe
+  const silentAudioRef = useRef(null); // Ref for the silent audio element
 
   // Effect hook to run on component mount
   useEffect(() => {
@@ -31,55 +30,45 @@ export default function Home() {
   }, []);
 
   // Function to handle button click event
-  const playAudio = () => {
+  const playAudio = async () => {
     // Check if the audio reference exists
     if (audioRef.current) {
       // Get the entrance number from session storage
       const entranceNumber = parseInt(sessionStorage.getItem('entrance'));
-      let newAudioSrc;
-      newAudioSrc = entranceNumber === 1 ? "/Ping.wav" : "/airport.mp3";
-
-      // Set the audio source state and trigger audio playback
+      const newAudioSrc = entranceNumber === 1 ? "/Ping.wav" : "/airport.mp3";
+      
+      // Set the audio source state and log the new source
       setAudioSrc(newAudioSrc);
-      audioRef.current.play();
-      setIsClicked(true); // Set isClicked to true to update the button style
+      console.log(`Setting audio source to: ${newAudioSrc}`);
+
+      try {
+        // Try to play the audio
+        await audioRef.current.play();
+        setIsClicked(true); // Set isClicked to true to update the button style
+      } catch (error) {
+        console.error("Error playing audio:", error);
+      }
     }
   };
 
-  // Effect hook to set up the iframe for autoplay
+  // Effect hook to set up the silent audio for autoplay
   useEffect(() => {
-    const iframe = document.createElement('iframe');
-    iframe.style.display = 'none'; // Hide the iframe
-    iframe.src = 'about:blank'; // Set the iframe's source to a blank page
-
-    // Append the iframe to the body
-    document.body.appendChild(iframe);
-
-    // Set the iframe reference
-    iframeRef.current = iframe;
-
-    // Function to play silent audio within the iframe
+    // Function to play silent audio 
     const playSilentAudio = () => {
-      if (iframeRef.current) {
-        const iframeDoc = iframeRef.current.contentDocument || iframeRef.current.contentWindow.document;
-        const audio = iframeDoc.createElement('audio');
-        audio.src = '/silent.mp3'; // Specify your silent audio file here
-        audio.autoplay = true; // Set the autoplay attribute
-        audio.muted = true; // Mute the audio
-        iframeDoc.body.appendChild(audio);
-        console.log("trigger")
+      if (silentAudioRef.current) {
+        console.log("Triggering silent audio");
+        silentAudioRef.current.play();
       }
     };
 
     // Initial play of the silent audio
     playSilentAudio();
 
-    // Set interval to play silent audio every 11 minutes
-    const interval = setInterval(playSilentAudio, 660000); // 660000 milliseconds = 11 minutes
+    // Set interval to play silent audio every 1 minute
+    const interval = setInterval(playSilentAudio, 60000); // 60000 milliseconds = 1 minute
 
-    // Cleanup function to remove the iframe and clear the interval
+    // Cleanup function to clear the interval
     return () => {
-      document.body.removeChild(iframe);
       clearInterval(interval);
     };
   }, []);
@@ -93,10 +82,14 @@ export default function Home() {
         <button
           className={`text-white font-bold py-4 px-6 rounded-lg btn ${isClicked ? 'bg-neutral-800' : 'bg-slate-950'}`}
           onClick={playAudio}
+          disabled={isClicked} // Disable the button after it's clicked
         >
           <p className="text-4xl md:text-7xl mb-0">Press here</p>
         </button>
-        <audio ref={audioRef} src={audioSrc} />
+        {/* Main audio element */}
+        <audio ref={audioRef} src={audioSrc} preload="auto" />
+        {/* Silent audio element */}
+        <audio ref={silentAudioRef} src="/silent.mp3" autoPlay loop />
       </div>
     </div>
   );
